@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 const socketSchema = new Schema({
-  userName: {
+  username: {
     type: String,
     unique: true,
     required: [true, 'Username is required']
@@ -13,4 +13,4 @@ const socketSchema = new Schema({
   }
 });
 
-const Socket = module.exports = mongoose.model('Socket', socketSchema);
+const SocketConnection = module.exports = mongoose.model('SocketConnection', socketSchema);

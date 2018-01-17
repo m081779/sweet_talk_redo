@@ -11,24 +11,12 @@ $(document).ready(() => {
 	closeModal('update-account-modal');
 	closeModal('inbox-modal');
 
-	//click event for submitting login
-	// $('#login-submit').on('click', (event) =>{
-	// 	event.preventDefault();
-	// 	loginUser();
-	// });
-
-	//click event for submitting a newly created user
-	// $('#create-submit').on('click', (event) =>{
-	// 	event.preventDefault();
-	// 	createUser();
-	// 	/// addUserTable();
-	// });
 
 	//click event for clearing all inputs
-	// $('#sign-in, #create-account').on('click', (event) => {
-	// 	event.preventDefault();
-	// 	clearInputs();
-	// });
+	$('#sign-in, #create-account').on('click', (event) => {
+		event.preventDefault();
+		clearInputs();
+	});
 
 	//click event listener for "swiping" on users
 	$(document).on('click','.choose', function (event) {
@@ -54,12 +42,6 @@ $(document).ready(() => {
 	// });
 
 	//click event for declining to request video chat
-
-	//click event for logging user out
-	// $('#sign-out').on('click', function (event) {
-	// 	event.preventDefault();
-	// 	signOut();
-	// });
 
 	//click event for creating a chat window
 	$(document).on('click', '.chatUser', function (event) {
@@ -135,16 +117,16 @@ $(document).ready(() => {
   	});
 
 	//socket message listener
- 	// socket.on('private message', function (data) {
-	// 	console.log('data from message:',data);
-	// 	console.log("thisUser from event listener", thisUser);
-  //
-	// 		createChatWindow(data.from);
-	// 		let message = $('<div class="bubble-left">').text(data.text);
-	// 		console.log('msgWindow Im trying to append to eventlisteners:', $('.msgWindow'))
-	// 		$('.msgWindow').append(message);
-	// 		$(message).parent().scrollTop($(message).offset().top);
-	// });
+ 	socket.on('private message', function (data) {
+		console.log('data from message:',data);
+		console.log("thisUser from event listener", thisUser);
+
+			createChatWindow(data.from);
+			let message = $('<div class="bubble-left">').text(data.text);
+			console.log('msgWindow Im trying to append to eventlisteners:', $('.msgWindow'))
+			$('.msgWindow').append(message);
+			$(message).parent().scrollTop($(message).offset().top);
+	});
   //
 	// socket.on('logins', (data) => {
 	// 	console.log("logins socket data", data);

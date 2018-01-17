@@ -1,9 +1,10 @@
 const User = require('../app/models/user')
 const Swipe = require('../app/models/swipe')
+const SocketConnection = require('../app/models/socket')
 // const = require('../app/models/')
+let currentUser;
 
-module.exports = function(app, passport) {
-
+module.exports = function(app, passport, io) {
 
     // show the home page (will also have our login links)
     app.get('/', function(req, res) {
@@ -45,6 +46,7 @@ module.exports = function(app, passport) {
 // USERVIEW ROUTES =============================================================
 // =============================================================================
       app.get('/userView', isLoggedIn, function (req,res){
+        currentUser = req.user;
         User
           .findOne({username: req.user.username})
           .populate('matches')
@@ -162,6 +164,43 @@ module.exports = function(app, passport) {
           .catch(err=>console.log(err))
 
       })//end of post to /swipe
+
+      app.get('/getUser', function (req,res){
+        res.json(req.user)
+      })
+
+      io.on('connection', function (socket) {
+        let newSocketConnection = new SocketConnection({
+          username: currentUser.username,
+          socketId: socket.id
+        });
+        SocketConnection
+          .create(newSocketConnection)
+          .then(result => {
+            console.log('result from create new socket',result)
+          })
+          .catch(err => console.log('error from create new socket',err));
+
+          socket.on('new message', function (message) {
+            SocketConnection
+              .findOne({username: message.to})
+              .then(userSocket => {
+                socket.broadcast.to(userSocket.socketId).emit('private message', message);
+              })
+              .catch(err => console.log(err));
+          });
+
+          socket.on('disconnect', function(){
+            console.log('user disconnected: ', currentUser.userName);
+            SocketConnection
+              .remove({username: currentUser.username})
+              .then(result => {
+                console.log('socket disconnection:',result)
+              })
+              .catch(err => console.log(err));
+          });
+      });
+
 };
 
 

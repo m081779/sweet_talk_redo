@@ -170,10 +170,10 @@ function enterMessage(event) {
 	if (typeof $('.chatInput:focus').val() !== 'undefined') {
 		let user = {};
 		user.to = $('.chatInput:focus').data('username');
-		user.from = thisUser;
+		user.from = thisUser.username;
 		user.text = $('.chatInput:focus').val().trim();
 	  if(event.keyCode == 13){
-	  	socket.emit('send message', user)
+	  	socket.emit('new message', user)
   		let myMessage = $('<div class="bubble-right">').text(user.text);
 		$('.msgWindow').append(myMessage);
   		$('.chatInput:focus').val('');

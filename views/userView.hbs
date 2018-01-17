@@ -159,3 +159,20 @@
 
 	<footer></footer>
 </div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  let socket = io();
+	let thisUser;
+	console.log(socket)
+	$.ajax({
+		url: '/getUser',
+		type: 'GET',
+		success: function (user){
+			console.log(user)
+			thisUser = user;
+		},
+		error: function (err){
+			console.log(err)
+		}
+	})
+</script>
