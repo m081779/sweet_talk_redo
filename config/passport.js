@@ -1,6 +1,6 @@
 
 const LocalStrategy    = require('passport-local').Strategy;
-const db = require('../app/models/');
+const User = require('../app/models/user');
 
 
 module.exports = function(passport) {
@@ -13,15 +13,12 @@ module.exports = function(passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-      console.log('Serialize:')
         done(null, user.id);
     });
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
-      console.log(id)
-        db.User.findById(id, function(err, user) {
-          console.log('user from deserialize:')
+        User.findById(id, function(err, user) {
             done(err, user);
         });
     });
@@ -39,7 +36,7 @@ module.exports = function(passport) {
 
         // asynchronous
         process.nextTick(function() {
-            db.User
+            User
               .findOne({ 'username' :  req.body.username })
               .then(user => {
                 // if no user is found, return the message
@@ -70,7 +67,7 @@ module.exports = function(passport) {
         process.nextTick(function() {
             // if the user is not already logged in:
             if (!req.user) {
-                db.User
+                User
                   .findOne({ 'username' :  req.body.username })
                   .then( result => {
                     // check to see if theres already a user with that email
@@ -83,7 +80,7 @@ module.exports = function(passport) {
                         newUser.password = newUser.generateHash(req.body.password);
                         newUser.img = newUser.gender === 'm' ? '/img/default_man.jpg' : '/img/default_woman.jpg';
 
-                        db.User
+                        User
                           .create(newUser, function (err,result){
                             if (err){
                               return done(err)

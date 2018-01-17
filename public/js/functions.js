@@ -35,11 +35,11 @@ function clearInputs() {
 //logic for when the user swipes left or right on the user
 function userSwipe(element) {
  	let swipe = $(element).attr('data-swipe'),
- 		username  = $(element).data('user'),
+ 		userId  = $(element).data('user'),
  		tileArr = [],
  		layer = $(element).data('layer'),
  		swipeData ={};
- 		swipeData.username = username;
+ 		swipeData.userId = userId;
  		swipeData.swipe = swipe;
 		console.log(swipeData)
  	$(element).parent().hide()

@@ -48,13 +48,13 @@ const userSchema = new Schema({
   rightSwipes: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Swipe"
+      ref: "User"
     }
   ],
   leftSwipes: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Swipe"
+      ref: "User"
     }
   ],
   matches: [

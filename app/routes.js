@@ -1,39 +1,19 @@
-// const User = require('../app/models/user')
-// const Swipe = require('../app/models/swipe')
-const db = require('../app/models/')
+const User = require('../app/models/user')
+const Swipe = require('../app/models/swipe')
+// const = require('../app/models/')
 
 module.exports = function(app, passport) {
 
-// normal routes ===============================================================
 
     // show the home page (will also have our login links)
     app.get('/', function(req, res) {
         res.render('index');
     });
 
-    // PROFILE SECTION =========================
-    // app.get('/profile', isLoggedIn, function(req, res) {
-    //     res.render('profile', {
-    //         user : req.user
-    //     });
-    // });
-
-    // LOGOUT ==============================
-    app.get('/logout', function(req, res) {
-        req.logout();
-        req.session.destroy();
-        res.redirect('/');
-    });
 
 // =============================================================================
-// AUTHENTICATE (FIRST LOGIN) ==================================================
+// AUTHENTICATION ROUTES =======================================================
 // =============================================================================
-
-    // locally --------------------------------
-        // LOGIN ===============================
-        // show the login form
-
-
         // process the login form
         app.post('/login', passport.authenticate('local-login', {
             successRedirect : '/userView', // redirect to the secure profile section
@@ -48,27 +28,31 @@ module.exports = function(app, passport) {
             failureRedirect : '/', // redirect back to the signup page if there is an error
             failureFlash : true // allow flash messages
         }));
-        //
-        // app.post('/userInfo', function (req,res){
-        //   let {age, img, bio, gender, seeking} = req.body;
-        //   //{age,bio,img,gender,seeking}
-        //   User
-        //     .update({username: req.user.username},{$set: {age: age,bio: bio,img: img,gender: gender,seeking: seeking}} )
-        //     .then(user => {
-        //
-        //       res.render('userView')
-        //     })
-        //     .catch(err => console.log(err))
-        // })
 
+        // LOGOUT ==============================
+        app.get('/logout', function(req, res) {
+          req.logout();
+          req.session.destroy(function (err) {
+            if (!err) {
+                res.status(200).clearCookie('connect.sid', {path: '/'}).redirect('/');
+            } else {
+                console.log('Error from session destroy:', err)
+            }
+          });
+        });
+
+// =============================================================================
+// USERVIEW ROUTES =============================================================
+// =============================================================================
       app.get('/userView', isLoggedIn, function (req,res){
-        db.User
+        User
           .findOne({username: req.user.username})
           .populate('matches')
           .populate('rightSwipes')
           .populate('leftSwipes')
           .then(currentUser => {
-            db.User
+            console.log('currentuser after populate:', currentUser)
+            User
             .find({gender: req.user.seeking, seeking: req.user.gender})
             .then(result => {
               let users = result.filter(user => {
@@ -95,8 +79,6 @@ module.exports = function(app, passport) {
                    }
                  })
                })
-              // connections: currentUser.matches
-              // console.log(users)
               let hbsObj = {
                 currentUser: currentUser,
                 users: users,
@@ -111,7 +93,7 @@ module.exports = function(app, passport) {
       });
 
       app.post('/updateUser', isLoggedIn, function (req, res){
-        db.User
+        User
           .findOneAndUpdate({username: req.user.username}, {$set:req.body})
           .then(result => res.sendStatus(200))
           .catch(err => res.json(err));
@@ -121,66 +103,64 @@ module.exports = function(app, passport) {
         //A = current user;
         let userA = req.user._id
         //B = user who was swiped on
-        let userB = '';
-        let matchedUser = '';
+        let userB = req.body.userId;
         let swipe = req.body.swipe
-        //find id of user B
-        db.User
-          .findOne({username: req.body.username})
-          .then(user => {
-            userB = user._id
-            matchedUser = user;
-            let newSwipe = new Swipe({
-            swiper: userA,
-            swipee: userB,
-            swipe: swipe
-            });
-            db.Swipe
-              .create(newSwipe)
-              .then(result => {
-                if (swipe) {
-                  db.Swipe
-                    .findOne({swiper: userB, swipee: userA})
-                    .then(swipeDoc => {
-                      if (swipeDoc){
-                        if (swipeDoc.swipe) {
-                          db.User
-                            .findOneAndUpdate({_id: userA}, {$push:{rightSwipes: userB, matches: userB}})
-                            .then( result => {
-                              db.User
-                                .findOneAndUpdate({_id: userB}, {$push:{matches: userB}})
-                                .then(result =>{
-                                  res.json(matchedUser);
-                                })
-                                .catch(err=> console.log(err));
+        //create new swipe
+        let newSwipe = new Swipe({
+        swiper: userA,
+        swipee: userB,
+        swipe: swipe
+        });
+        Swipe
+          .create(newSwipe)
+          .then(result => {
+            //if swipe was true, check if userB has swiped on userA
+            if (swipe) {
+              Swipe
+                .findOne({swiper: userB, swipee: userA})
+                .then(swipeDoc => {
+                  //if swipe document exists, and if swipe was true, then update userA and userB's match array
+                  //and add userB to rightSwipes
+                  if (swipeDoc){
+                    if (swipeDoc.swipe) {
+                      User
+                        .findOneAndUpdate({_id: userA}, {$push:{rightSwipes: userB, matches: userB}})
+                        .then( result => {
+                          User
+                            .findOneAndUpdate({_id: userB}, {$push:{matches: userB}})
+                            .then(matchedUser =>{
+                              //then send the new match to the front end
+                              res.json(matchedUser);
                             })
                             .catch(err=> console.log(err));
-                        }
-                      } else {
-                        db.User
-                          .findOneAndUpdate({_id: userA}, {$push:{rightSwipes: userB}})
-                          .then( result =>{
-                            console.log('finished:',result)
-                            res.json(result)
-                          })
-                          .catch(err=> console.log(err));
-                      }
-                    })
-                    .catch(err=> console.log(err));
-                } else {
-                  db.User
-                    .findOneAndUpdate({_id: userA}, {$push:{leftSwipes: userB, matches: userB}})
-                    .then( result => {
-                      console.log('finished:',result)
-                      res.json(result)
-                    })
-                    .catch(err=> console.log(err));
-                }
-              })
-              .catch(err=>console.log(err))
-
+                        })
+                        .catch(err=> console.log(err));
+                    }
+                  } else {
+                    //if userB hasn't swiped on userA, just push userB into rightSwipes
+                    User
+                      .findOneAndUpdate({_id: userA}, {$push:{rightSwipes: userB}})
+                      .then( result =>{
+                        console.log('finished:',result)
+                        res.json(result)
+                      })
+                      .catch(err=> console.log(err));
+                  }
+                })
+                .catch(err=> console.log(err));
+            } else {
+              //if swipe was false, add userB to leftSwipes
+              User
+                .findOneAndUpdate({_id: userA}, {$push:{leftSwipes: userB}})
+                .then( result => {
+                  console.log('finished:',result)
+                  res.json(result)
+                })
+                .catch(err=> console.log(err));
+            }
           })
-          .catch(err=> console.log(err));
+          .catch(err=>console.log(err))
+
       })//end of post to /swipe
 };
 
