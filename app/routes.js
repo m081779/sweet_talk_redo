@@ -170,6 +170,7 @@ module.exports = function(app, passport, io) {
       })
 
       io.on('connection', function (socket) {
+        console.log('current user from socket',currentUser.username)
         SocketConnection
           .findOne({username: currentUser.username})
           .then(result => {
@@ -177,7 +178,7 @@ module.exports = function(app, passport, io) {
             if (result) {
               SocketConnection
                 .remove({username: currentUser.username})
-                then(result => {
+                .then(result => {
                   let newSocketConnection = new SocketConnection({
                     username: currentUser.username,
                     socketId: socket.id
