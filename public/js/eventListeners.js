@@ -118,12 +118,8 @@ $(document).ready(() => {
 
 	//socket message listener
  	socket.on('private message', function (data) {
-		console.log('data from message:',data);
-		console.log("thisUser from event listener", thisUser);
-
 			createChatWindow(data.from);
 			let message = $('<div class="bubble-left">').text(data.text);
-			console.log('msgWindow Im trying to append to eventlisteners:', $('.msgWindow'))
 			$('.msgWindow').append(message);
 			$(message).parent().scrollTop($(message).offset().top);
 	});

@@ -123,9 +123,9 @@ function requestVideo() {
 //===============================
 
 //If the user closes the window with out logging out this calls the logout
-// window.onbeforeunload = function() {
-//     $.get('/logout')
-// };
+window.onbeforeunload = function() {
+    $.get('/logout')
+};
 //=========================================
 //Functions to deal with the chat windows.
 //=========================================

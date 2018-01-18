@@ -215,7 +215,7 @@ module.exports = function(app, passport, io) {
           });
 
           socket.on('disconnect', function(){
-            console.log('user disconnected: ', currentUser.userName);
+            console.log('user disconnected');
             SocketConnection
               .remove({username: currentUser.username})
               .then(result => {

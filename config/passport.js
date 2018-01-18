@@ -66,6 +66,8 @@ module.exports = function(passport) {
         // asynchronous
         process.nextTick(function() {
             // if the user is not already logged in:
+            console.log(req.body)
+            console.log(req.user)
             if (!req.user) {
                 User
                   .findOne({ 'username' :  req.body.username })
@@ -85,6 +87,7 @@ module.exports = function(passport) {
                             if (err){
                               return done(err)
                             } else {
+                              console.log(result)
                               return done(null,newUser)
                             }
                           });
