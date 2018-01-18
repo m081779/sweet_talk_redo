@@ -170,16 +170,39 @@ module.exports = function(app, passport, io) {
       })
 
       io.on('connection', function (socket) {
-        let newSocketConnection = new SocketConnection({
-          username: currentUser.username,
-          socketId: socket.id
-        });
         SocketConnection
-          .create(newSocketConnection)
+          .findOne({username: currentUser.username})
           .then(result => {
-            console.log('result from create new socket',result)
+            console.log('result from finding a socket:',result)
+            if (result) {
+              SocketConnection
+                .remove({username: currentUser.username})
+                then(result => {
+                  let newSocketConnection = new SocketConnection({
+                    username: currentUser.username,
+                    socketId: socket.id
+                  });
+                  SocketConnection
+                    .create(newSocketConnection)
+                    .then(result => {
+                      console.log('result from create new socket',result)
+                    })
+                    .catch(err => console.log('error from create new socket',err));
+                })
+                .catch(err=> console.log(err))
+            } else {
+              let newSocketConnection = new SocketConnection({
+                username: currentUser.username,
+                socketId: socket.id
+              });
+              SocketConnection
+                .create(newSocketConnection)
+                .then(result => {
+                  console.log('result from create new socket',result)
+                })
+                .catch(err => console.log('error from create new socket',err));
+            }
           })
-          .catch(err => console.log('error from create new socket',err));
 
           socket.on('new message', function (message) {
             SocketConnection
