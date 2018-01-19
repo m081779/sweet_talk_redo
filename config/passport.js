@@ -65,7 +65,9 @@ module.exports = function(passport) {
                     } else {
                       let newUser = new User(req.body);
                       newUser.password = newUser.generateHash(req.body.password);
-                      newUser.img = newUser.gender === 'm' ? '/img/default_man.jpg' : '/img/default_woman.jpg';
+                      if (newUser.img === '') {
+                        newUser.img = newUser.gender === 'm' ? '/img/default_man.jpg' : '/img/default_woman.jpg';
+                      }
 
                       db.User
                         .create(newUser)
