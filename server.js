@@ -17,11 +17,12 @@ const cookieParser = require('cookie-parser');
 const bodyParser   = require('body-parser');
 const session      = require('express-session');
 
-const config = require(path.join(__dirname, './config/database.js'));
+// const config = require(path.join(__dirname, './config/database.js'));
 // configuration ===============================================================
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet-talk'
 mongoose.Promise = Promise;
 mongoose
-  .connect(config.database)
+  .connect(MONGODB_URI)
   .then( result => {
 
     console.log(`Connected to database '${result.connections[0].name}' on ${result.connections[0].host}:${result.connections[0].port}`)
@@ -43,7 +44,7 @@ app.set('view engine', '.hbs');
 // required for passport
 const MongoDBStore = require('connect-mongodb-session')(session);
 const store = new MongoDBStore({
-  uri: config.database,
+  uri: MONGODB_URI,
   collection: 'mySessions'
 });
 
