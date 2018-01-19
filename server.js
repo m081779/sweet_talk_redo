@@ -42,24 +42,24 @@ app.engine('hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
 app.set('view engine', '.hbs');
 
 // required for passport
-// const MongoDBStore = require('connect-mongodb-session')(session);
-// const store = new MongoDBStore({
-//   uri: MONGODB_URI,
-//   collection: 'mySessions'
-// });
-//
-// store
-//   .on('error', function(error) {
-//     assert.ifError(error);
-//     assert.ok(false);
-//   });
+const MongoDBStore = require('connect-mongodb-session')(session);
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: 'mySessions'
+});
+
+store
+  .on('error', function(error) {
+    assert.ifError(error);
+    assert.ok(false);
+  });
 app.use(session({
     secret: '52e0d0v5h5t5r2e0s0s2cvb1j1j2k25u', // session secret
     cookie: { maxAge: 24 * 60 * 60 * 1000 },
-    unset: 'destroy',
+    unset: 'destroy'
     resave: false,
     saveUninitialized: false,
-    // store: store
+    store: store
 }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
