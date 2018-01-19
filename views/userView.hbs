@@ -56,7 +56,7 @@
 
 	<div id="chat-accordion" class="chat-accordion chats">
 		<h3>Chat</h3>
-		  <div>
+		  <div id="onlineUsers">
 		  	{{#each connections}}
 				<p class="chatUser">{{username}}</p>
 		  	{{/each}}
@@ -163,15 +163,16 @@
 <script>
   let socket = io();
 	let thisUser;
-	console.log(socket)
+	console.log('Socket Connection:',socket)
 	$.ajax({
 		url: '/getUser',
 		type: 'GET',
 		success: function (user){
+			console.log('user from /getUser:', user)
 			thisUser = user;
 		},
 		error: function (err){
-			console.log(err)
+			console.log('error from /getuser',err)
 		}
 	})
 </script>

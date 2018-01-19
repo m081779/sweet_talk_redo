@@ -41,7 +41,6 @@ function userSwipe(element) {
  		swipeData ={};
  		swipeData.userId = userId;
  		swipeData.swipe = swipe;
-		console.log(swipeData)
  	$(element).parent().hide()
  	$(element).parent().next().show()
  	$('.userTile').each(function (i, item) {
@@ -50,15 +49,15 @@ function userSwipe(element) {
  	if ($(element).parent()==tileArr[tileArr.length-1]){
  		$('.noMore').show();
  	}
-	if (swipe===true) {
- 		socket.emit('swipe right', swipeData)
- 	}
+
 	$.ajax({
 		url: '/swipe',
 		type: 'POST',
 		data: swipeData,
 		success: function(result) {
-			console.log('result from success /swipe',result)
+			if (result.match){
+				addChatUser(result.match.username)
+			}
 		},
 		error: function (err){
 			console.log('error from /swipe', err)
@@ -93,7 +92,7 @@ function updateUser(element) {
 			type: 'POST',
 			data: updatedUser
 		}).done((result) => {
-			console.log('firing in done')
+			console.log('user updated:', result)
 			$('#update-account-modal').hide();
 			location.reload();
 		});
@@ -180,6 +179,10 @@ function enterMessage(event) {
   		$(myMessage).parent().scrollTop($(myMessage).offset().top);
 	  }
 	}
+}
+
+function addChatUser(username) {
+	let user = $('<p>').addClass('chatUser').text(username).appendTo('#onlineUsers')
 }
 
 //commented out for future use

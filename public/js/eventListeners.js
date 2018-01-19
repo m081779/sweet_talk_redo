@@ -117,30 +117,21 @@ $(document).ready(() => {
   	});
 
 	//socket message listener
- 	socket.on('private message', function (data) {
-			createChatWindow(data.from);
-			let message = $('<div class="bubble-left">').text(data.text);
-			$('.msgWindow').append(message);
-			$(message).parent().scrollTop($(message).offset().top);
-	});
-  //
-	// socket.on('logins', (data) => {
-	// 	console.log("logins socket data", data);
-	// 	let user = data[0][data[0].length-1];
-	// 	console.log("user from logins", user);
-	// 	$("#userTileContainer").append(
-	// 		`<div class="userTile centered" data-layer="">
-	// 			<h2 class="tileTitle">Meet ${user.userName}!</h2>
-	// 			<div class="imgContainer">
-	// 				<img src="${user.img}" alt="image of ${user.userName}" class="userImage">
-	// 			</div>
-	// 			<p class="userBio">${user.bio}</p>
-	// 			<button class="choose" data-swipe="false" data-user="${user.userName}"><i class="fa fa-times fa-3x" aria-hidden="true"></i></button>
-	// 			<button class="choose" data-swipe="true" data-user="${user.userName}"><i class="fa fa-check fa-3x" aria-hidden="true"></i></button>
-	// 		</div>`);
-	// });
-  //
-	// socket.on('add chat user', function (user) {
-	// 	$('#chat-accordion').append('<p class="chatUser">'+user+'</p>');
-	// });
+	if (typeof socket!=='undefined') {//conditional avoids program throwing errors if socket is undefined
+		socket.on('private message', function (data) {
+				createChatWindow(data.from);
+				let message = $('<div class="bubble-left">').text(data.text);
+				$('.msgWindow').append(message);
+				$(message).parent().scrollTop($(message).offset().top);
+		});
+
+		socket.on('add match', function (username){
+			addChatUser(username)
+		});
+
+		socket.on('delete match', function (username){
+			$('#onlineUsers>p:contains('+username+')').remove();
+		});
+	}
+
 });//end of document ready function

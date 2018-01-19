@@ -1,6 +1,7 @@
 
 const LocalStrategy    = require('passport-local').Strategy;
 const User = require('../app/models/user');
+const db = require('../app/models/')
 
 
 module.exports = function(passport) {
@@ -18,7 +19,7 @@ module.exports = function(passport) {
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
-        User.findById(id, function(err, user) {
+        db.User.findById(id, function(err, user) {
             done(err, user);
         });
     });
@@ -27,19 +28,13 @@ module.exports = function(passport) {
     // LOCAL LOGIN =============================================================
     // =========================================================================
     passport.use('local-login', new LocalStrategy({
-        // by default, local strategy uses username and password, we will override with email
-        // usernameField : 'userName',
-        // passwordField : 'password',
         passReqToCallback : true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function(req, username,password, done) {
-
-        // asynchronous
         process.nextTick(function() {
-            User
+            db.User
               .findOne({ 'username' :  req.body.username })
               .then(user => {
-                // if no user is found, return the message
                 if (!user){
                   return done(null, false, req.flash('loginMessage', 'No user found.'));
                 } else if (!user.validPassword(password)) {
@@ -50,48 +45,32 @@ module.exports = function(passport) {
               })
               .catch(err=>console.log(err));
         });
-
     }));
 
     // =========================================================================
     // LOCAL SIGNUP ============================================================
     // =========================================================================
     passport.use('local-signup', new LocalStrategy({
-        // by default, local strategy uses username and password, we will override with email
-        // usernameField : 'userName',
-        // passwordField : 'password',
         passReqToCallback : true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function(req, username, password,done) {
-        // asynchronous
         process.nextTick(function() {
-            // if the user is not already logged in:
-            console.log(req.body)
-            console.log(req.user)
+
             if (!req.user) {
-                User
+                db.User
                   .findOne({ 'username' :  req.body.username })
                   .then( result => {
-                    // check to see if theres already a user with that email
                     if (result) {
                         return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
                     } else {
-                        // create the user
-                        let newUser = new User(req.body);
+                      let newUser = new User(req.body);
+                      newUser.password = newUser.generateHash(req.body.password);
+                      newUser.img = newUser.gender === 'm' ? '/img/default_man.jpg' : '/img/default_woman.jpg';
 
-                        newUser.password = newUser.generateHash(req.body.password);
-                        newUser.img = newUser.gender === 'm' ? '/img/default_man.jpg' : '/img/default_woman.jpg';
-
-                        User
-                          .create(newUser, function (err,result){
-                            if (err){
-                              return done(err)
-                            } else {
-                              console.log(result)
-                              return done(null,newUser)
-                            }
-                          });
-
+                      db.User
+                        .create(newUser)
+                        .then(user => done(null,user))
+                        .catch(err => done(err));
                     }
                   })
                   .catch(err=>console.log(err));
