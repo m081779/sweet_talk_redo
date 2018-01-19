@@ -17,7 +17,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser   = require('body-parser');
 const session      = require('express-session');
 
-const config = require('./config/database.js');
+const config = require(path.join(__dirname, './config/database.js'));
 // configuration ===============================================================
 mongoose.Promise = Promise;
 mongoose
