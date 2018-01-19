@@ -85,7 +85,8 @@ module.exports = function(app, passport, io) {
 
               //check matches to see who is currently online.  If they are online,
               //send them to front end to populate chat window
-              let connections = currentUser.matches.map((match, i) => {
+              let connections = []
+              connections = currentUser.matches.map((match, i) => {
                 if (typeof online[match.username] !== 'undefined'){
                   return match;
                 }
